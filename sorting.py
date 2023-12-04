@@ -24,6 +24,7 @@ def create_fg_list(n):
 # 100,000 testing requirement
 def large_test():
     test_list = list()
+    # Generate random strings and numbers
     for i in range(100000):
         random_str = ''.join(random.choice(string.ascii_letters) for _ in range(10))
         random_num = random.random()
@@ -33,21 +34,27 @@ def large_test():
 
 # Times merge sort
 def descending(n):
+    # unsorted_list = large_test()
+    unsorted_list = create_fg_list(n)
+    
     start_time = time.time()
-    # descending_list = merge_sort(large_test())
-    descending_list = merge_sort(create_fg_list(n))
+    descending_list = merge_sort(unsorted_list)
     end_time = time.time()
     elapsed_time = end_time - start_time
+    
     return [descending_list, elapsed_time]
 
 
 # Times min heap
 def ascending(n):
+    # unsorted_list = large_test()
+    unsorted_list = create_fg_list(n)
+    
     start_time = time.time()
-    # ascending_list = min_heap(large_test())
-    ascending_list = min_heap(create_fg_list(n))
+    ascending_list = min_heap(unsorted_list)
     end_time = time.time()
     elapsed_time = end_time - start_time
+    
     return [ascending_list, elapsed_time]
 
 
