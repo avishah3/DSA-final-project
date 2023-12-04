@@ -12,7 +12,7 @@ class TextBox:
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
-            # If the user clicked on the textbox
+            # If the user clicks on the textbox
             if self.rect.collidepoint(event.pos):
                 self.active = not self.active
             else:
@@ -22,7 +22,7 @@ class TextBox:
 
         if event.type == pygame.KEYDOWN:
             if self.active:
-                # If user enters players
+                # If user enters a player's name
                 if event.key == pygame.K_RETURN:
                     self.chosen = True
                     print(self.text)
@@ -79,3 +79,42 @@ class Button:
             return True
         self.color = (80, 80, 255)
         return False
+
+
+class PlayerButton:
+    def __init__(self, x, y, width, height, text):
+        self.color = (245, 245, 245)
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.text = str(text)
+
+    def draw(self, win):
+        # Draw the button rectangle
+        pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.height))
+
+        # Draw the button text
+        font = pygame.font.SysFont(None, 30)
+        text = font.render(self.text, True, (40, 40, 40))
+        win.blit(text, (self.x + (self.width - text.get_width()) // 2, self.y + (self.height - text.get_height()) // 2))
+
+
+class Text:
+    def __init__(self, x, y, width, height, text):
+        self.color = (245, 245, 245)
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.text = str(text)
+
+    def draw(self, win):
+        # Draw the button rectangle
+        pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.height))
+
+        # Draw the button text
+        font = pygame.font.SysFont(None, 40)
+        text = font.render(self.text, True, (100, 40, 100))
+        win.blit(text, (self.x + (self.width - text.get_width()) // 2, self.y + (self.height - text.get_height()) // 2))
+
