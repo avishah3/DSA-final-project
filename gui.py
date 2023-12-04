@@ -1,7 +1,8 @@
 import pygame
 import numpy as np
 from shotchart import ShotChart
-from buttons import Button, TextBox
+from buttons import Button, TextBox, PlayerButton, Text
+import heapq
 import sorting
 
 
@@ -22,8 +23,7 @@ class GUI:
         self.midrange = Button(700, 140, 200, 50, "Mid-Range")
         self.paint = Button(1000, 140, 200, 50, "Paint")
 
-        self.merge_buttons = []
-        self.heap_buttons = []
+        self.buttons = []
 
         # Court
         image = pygame.image.load('nba_court_image.jpg')
@@ -33,7 +33,8 @@ class GUI:
 
         # Defaults
         self.name = 'Lebron James'
-        self.percentage_map = ShotChart(self.name, '2022-23', 'all').percentage_map
+        self.mode = 'all'
+        self.percentage_map = ShotChart(self.name, '2022-23', self.mode).percentage_map
 
         self.run()
         pygame.quit()
@@ -51,24 +52,30 @@ class GUI:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     pos = pygame.mouse.get_pos()
                     if self.all.is_over(pos):
-                        self.percentage_map = ShotChart(self.name, '2022-23', 'all').percentage_map
+                        self.mode = 'all'
+                        self.percentage_map = ShotChart(self.name, '2022-23', self.mode).percentage_map
                         self.court_created = False
                         self.add_sorting(0)
                     elif self.threes.is_over(pos):
-                        self.percentage_map = ShotChart(self.name, '2022-23', 'threes').percentage_map
+                        self.mode = 'threes'
+                        self.percentage_map = ShotChart(self.name, '2022-23', self.mode).percentage_map
                         self.court_created = False
                         self.add_sorting(1)
                     elif self.midrange.is_over(pos):
-                        self.percentage_map = ShotChart(self.name, '2022-23', 'midrange').percentage_map
+                        self.mode = 'midrange'
+                        self.percentage_map = ShotChart(self.name, '2022-23', self.mode).percentage_map
                         self.court_created = False
+                        self.add_sorting(0)
                     elif self.paint.is_over(pos):
-                        self.percentage_map = ShotChart(self.name, '2022-23', 'paint').percentage_map
+                        self.mode = 'paint'
+                        self.percentage_map = ShotChart(self.name, '2022-23', self.mode).percentage_map
                         self.court_created = False
+                        self.add_sorting(0)
 
             # Check for user input
             if self.input_box.is_chosen():
                 self.name = self.input_box.return_name()
-                self.percentage_map = ShotChart(self.name, '2022-23', 'all').percentage_map
+                self.percentage_map = ShotChart(self.name, '2022-23', self.mode).percentage_map
 
                 self.input_box.after_chosen()
                 self.court_created = False
@@ -85,9 +92,7 @@ class GUI:
             self.all.draw(self.screen)
 
             # Draw sorting buttons
-            for button in self.merge_buttons:
-                button.draw(self.screen)
-            for button in self.heap_buttons:
+            for button in self.buttons:
                 button.draw(self.screen)
 
             # Draw court image
@@ -120,17 +125,43 @@ class GUI:
         return pygame.transform.rotate(self.court, 90)
 
     def add_sorting(self, n):
+        self.buttons.clear()
         merge_list, merge_time = sorting.descending(n)
-        heap_list, heap_time = sorting.ascending(n)
+        heap, heap_time = sorting.ascending(n)
+
+        # Add buttons (0 -> FG, 1 -> 3FG)
+        if n == 0:
+            text = Text(100, 250, 200, 50, 'Best FG%')
+            self.buttons.append(text)
+            text2 = Text(1000, 250, 200, 50, 'Worst FG%')
+            self.buttons.append(text2)
+            string = 'merge sort: ' + str(round(merge_time, 3)) + ' s'
+            text3 = Text(100, 600, 200, 50, string)
+            self.buttons.append(text3)
+            string2 = 'min heap: ' + str(round(heap_time, 3)) + ' s'
+            text4 = Text(1000, 600, 200, 50, string2)
+            self.buttons.append(text4)
+        else:
+            text = Text(100, 250, 200, 50, 'Best 3FG%')
+            self.buttons.append(text)
+            text2 = Text(1000, 250, 200, 50, 'Worst 3FG%')
+            self.buttons.append(text2)
+            string = 'min heap: ' + str(round(heap_time, 3)) + ' s'
+            text3 = Text(100, 600, 200, 50, string)
+            self.buttons.append(text3)
+            string2 = 'min heap: ' + str(round(heap_time, 3)) + ' s'
+            text4 = Text(1000, 600, 200, 50, string2)
+            self.buttons.append(text4)
+
+        # Place player buttons on the left
         for num in range(5):
-            name = merge_list[num]
-            button = Button(100, 100 + 100*num, 200, 50, name)
-            self.merge_buttons.append(button)
+            name = merge_list[num][0]
+            button = PlayerButton(100, 320 + 50*num, 200, 50, name)
+            self.buttons.append(button)
 
+        # Place player buttons on the right
         for num2 in range(5):
-            name2 = heap_list[num]
-            button2 = Button(800, 100 + 100*num, 200, 50, name2)
-            self.heap_buttons.append(button2)
+            name2 = heapq.heappop(heap)[1]
+            button2 = PlayerButton(1000, 320 + 50*num2, 200, 50, name2)
+            self.buttons.append(button2)
 
-        print("merge: ", merge_time)
-        print("heap: ", heap_time)
