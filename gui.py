@@ -12,9 +12,18 @@ class GUI:
         self.screen = pygame.display.set_mode(window_size)
         self.percentage_map = np.full((50, 42), -1.0)
         pygame.display.set_caption("Basketball Shooting Chart")
-        self.input_box = TextBox(100, 100, 140, 32)
 
-        self.percentage_map = shotchart.ShotChart('Stephen Curry', '2020-21').percentage_map
+        # UI elements
+        self.input_box = TextBox(100, 100, 140, 32)
+        self.all = Button(50, 0, 200, 50, "All")
+        self.threes = Button(50, 100, 200, 50, "Threes")
+        self.midrange = Button(50, 200, 200, 50, "Mid-Range")
+        self.paint = Button(50, 300, 200, 50, "Paint")
+
+        self.mode = 'all'
+        self.name = 'Lebron James'
+
+        self.percentage_map = shotchart.ShotChart(self.name, '2022-23', 'all').percentage_map
 
         self.court_created = False
         self.court = pygame.Surface((420, 500))
@@ -32,20 +41,39 @@ class GUI:
                     running = False
                 self.input_box.handle_event(event)
 
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    pos = pygame.mouse.get_pos()
+                    if self.all.is_over(pos):
+                        self.percentage_map = shotchart.ShotChart(self.name, '2022-23', 'all').percentage_map
+                        self.court_created = False
+                    elif self.threes.is_over(pos):
+                        self.percentage_map = shotchart.ShotChart(self.name, '2022-23', 'threes').percentage_map
+                        self.court_created = False
+                    elif self.midrange.is_over(pos):
+                        self.percentage_map = shotchart.ShotChart(self.name, '2022-23', 'midrange').percentage_map
+                        self.court_created = False
+                    elif self.paint.is_over(pos):
+                        self.percentage_map = shotchart.ShotChart(self.name, '2022-23', 'paint').percentage_map
+                        self.court_created = False
+
             # Check for user input
             if self.input_box.is_chosen():
-                name = self.input_box.return_name()
-                self.percentage_map = shotchart.ShotChart(name, '2022-23').percentage_map
+                self.name = self.input_box.return_name()
+                self.percentage_map = shotchart.ShotChart(self.name, '2022-23', 'all').percentage_map
+
                 self.input_box.after_chosen()
                 self.court_created = False
 
             # Draw background
             self.screen.fill((255, 255, 255))
 
-            # Draw text box
+            # Draw UI elements
             self.input_box.update()
-
             self.input_box.draw(self.screen)
+            self.threes.draw(self.screen)
+            self.midrange.draw(self.screen)
+            self.paint.draw(self.screen)
+            self.all.draw(self.screen)
 
             if self.heat_mode:
                 # Draw court image
@@ -128,3 +156,27 @@ class TextBox:
     def after_chosen(self):
         self.chosen = False
 
+
+class Button:
+    def __init__(self, x, y, width, height, text):
+        self.color = (0, 0, 255)  # Blue color
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.text = text
+
+    def draw(self, win):
+        # Draw the button rectangle
+        pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.height))
+
+        # Draw the button text
+        font = pygame.font.SysFont(None, 40)
+        text = font.render(self.text, True, (255, 255, 255))  # White color
+        win.blit(text, (self.x + (self.width - text.get_width()) // 2, self.y + (self.height - text.get_height()) // 2))
+
+    def is_over(self, pos):
+        # Check if mouse is over the button
+        if self.x < pos[0] < self.x + self.width and self.y < pos[1] < self.y + self.height:
+            return True
+        return False
