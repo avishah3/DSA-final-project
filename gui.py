@@ -136,10 +136,10 @@ class GUI:
             self.buttons.append(text)
             text2 = Text(1000, 250, 200, 50, 'Worst FG%')
             self.buttons.append(text2)
-            string = 'merge sort: ' + str(round(merge_time, 3)) + ' s'
+            string = 'merge sort: ' + str(round(merge_time, 4)) + ' s'
             text3 = Text(100, 600, 200, 50, string)
             self.buttons.append(text3)
-            string2 = 'min heap: ' + str(round(heap_time, 3)) + ' s'
+            string2 = 'min heap: ' + str(round(heap_time, 4)) + ' s'
             text4 = Text(1000, 600, 200, 50, string2)
             self.buttons.append(text4)
         else:
@@ -147,10 +147,10 @@ class GUI:
             self.buttons.append(text)
             text2 = Text(1000, 250, 200, 50, 'Worst 3FG%')
             self.buttons.append(text2)
-            string = 'merge sort: ' + str(round(heap_time, 3)) + ' s'
+            string = 'merge sort: ' + str(round(merge_time, 4)) + ' s'
             text3 = Text(100, 600, 200, 50, string)
             self.buttons.append(text3)
-            string2 = 'min heap: ' + str(round(heap_time, 3)) + ' s'
+            string2 = 'min heap: ' + str(round(heap_time, 4)) + ' s'
             text4 = Text(1000, 600, 200, 50, string2)
             self.buttons.append(text4)
 
