@@ -14,12 +14,16 @@ class GUI:
         pygame.display.set_caption("Basketball Shooting Chart")
 
         # UI elements
-        self.input_box = TextBox(100, 100, 140, 32)
-        self.all = Button(50, 0, 200, 50, "All")
-        self.threes = Button(50, 100, 200, 50, "Threes")
-        self.midrange = Button(50, 200, 200, 50, "Mid-Range")
-        self.paint = Button(50, 300, 200, 50, "Paint")
+        self.input_box = TextBox(540, 50, 200, 40)
+        self.all = Button(100, 150, 200, 50, "All")
+        self.threes = Button(400, 150, 200, 50, "Threes")
+        self.midrange = Button(700, 150, 200, 50, "Mid-Range")
+        self.paint = Button(1000, 150, 200, 50, "Paint")
 
+        image = pygame.image.load('nba_court_image.jpg')
+        self.scaled_image = pygame.transform.scale(image, (500, 420))
+
+        # Default mode
         self.mode = 'all'
         self.name = 'Lebron James'
 
@@ -27,8 +31,6 @@ class GUI:
 
         self.court_created = False
         self.court = pygame.Surface((420, 500))
-
-        self.heat_mode = True
 
         self.run()
         pygame.quit()
@@ -65,7 +67,7 @@ class GUI:
                 self.court_created = False
 
             # Draw background
-            self.screen.fill((255, 255, 255))
+            self.screen.fill((245, 245, 245))
 
             # Draw UI elements
             self.input_box.update()
@@ -75,22 +77,20 @@ class GUI:
             self.paint.draw(self.screen)
             self.all.draw(self.screen)
 
-            if self.heat_mode:
-                # Draw court image
-                if not self.court_created:
-                    self.court = self.create_court()
-                    self.court_created = True
-                self.screen.blit(self.court, (390, 300))
+            # Draw court image
+            self.screen.blit(self.scaled_image, (390, 275))
 
-            else:
-                pass
-                # Draw tier list image
-                # Write Names / Photos
+            if not self.court_created:
+                self.court = self.create_court()
+                self.court_created = True
+            self.screen.blit(self.court, (390, 300))
 
             pygame.display.flip()
 
     def create_court(self):
         self.court = pygame.Surface((420, 500))
+        self.court.set_alpha(150)
+
         # Overlay heat map
         for i in range(self.percentage_map.shape[0]):
             for j in range(self.percentage_map.shape[1]):
@@ -111,7 +111,7 @@ class TextBox:
         self.color = pygame.Color('dodgerblue2')
         self.chosen = False
         self.text = text
-        self.txt_surface = pygame.font.Font(None, 32).render(text, True, self.color)
+        self.txt_surface = pygame.font.Font(None, 40).render(text, True, self.color)
         self.active = False
 
     def handle_event(self, event):
@@ -172,7 +172,7 @@ class Button:
 
         # Draw the button text
         font = pygame.font.SysFont(None, 40)
-        text = font.render(self.text, True, (255, 255, 255))  # White color
+        text = font.render(self.text, True, (255, 255, 255))
         win.blit(text, (self.x + (self.width - text.get_width()) // 2, self.y + (self.height - text.get_height()) // 2))
 
     def is_over(self, pos):
