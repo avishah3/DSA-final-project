@@ -13,14 +13,16 @@ class ShotChart:
         self.season_id = season
         self.mode = mode
 
+        # Initialize heat maps (-1.0 means no shots)
         self.made_map = np.zeros((50, 42))
         self.total_map = np.zeros((50, 42))
-
         self.percentage_map = np.full((50, 42), -1.0)
+
         self.extract_data()
         self.create_map()
 
     def create_map(self):
+        # Create percentage heat map based on made and total maps
         for i in range(len(self.total_map)):
             for j in range(len(self.total_map[0])):
                 count = self.total_map[i][j]
@@ -28,8 +30,8 @@ class ShotChart:
                     self.percentage_map[i][j] = self.made_map[i][j] / count
 
     def extract_data(self):
+        # Search for specific player
         target_dict = []
-
         found = False
         for player in self.nba_players:
             if player['full_name'].lower() == self.name.lower():
@@ -40,11 +42,11 @@ class ShotChart:
             print("Player not found.")
             return
 
-        # career dataframe
+        # Career dataframe
         career = playercareerstats.PlayerCareerStats(player_id=target_dict['id'])
         career_df = career.get_data_frames()[0]
 
-        # team id during the season
+        # Get team id during the season
         team_id_series = career_df[career_df['SEASON_ID'] == self.season_id]['TEAM_ID']
         if not team_id_series.empty:
             team_id = int(team_id_series.iloc[0])
@@ -52,6 +54,7 @@ class ShotChart:
             print("Season data not found for player.")
             return
 
+        # Retrieve the relevant data
         shotchartlist = shotchartdetail.ShotChartDetail(
             team_id=team_id,
             player_id=int(target_dict['id']),
@@ -69,6 +72,7 @@ class ShotChart:
             x_exact = x_made[i]
             y_exact = y_made[i]
 
+            # Normalize values, create square box to represent shot location
             x = (250 + x_exact) // 10
             y = (52 + y_exact) // 10
 
@@ -87,6 +91,7 @@ class ShotChart:
                 self.total_map[x][y] += 1
 
     def get_shots(self, player_shotchart_df):
+        # Return relevant information based on shot type
         if self.mode == 'paint':
             x_missed = player_shotchart_df[player_shotchart_df['EVENT_TYPE'] == 'Missed Shot'][player_shotchart_df['SHOT_ZONE_BASIC'] == ('In The Paint (Non-RA)' or 'Restricted Area')]['LOC_X'].tolist()
             y_missed = player_shotchart_df[player_shotchart_df['EVENT_TYPE'] == 'Missed Shot'][player_shotchart_df['SHOT_ZONE_BASIC'] == ('In The Paint (Non-RA)' or 'Restricted Area')]['LOC_Y'].tolist()
