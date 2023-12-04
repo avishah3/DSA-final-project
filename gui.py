@@ -21,7 +21,7 @@ class GUI:
         self.paint = Button(1000, 150, 200, 50, "Paint")
 
         image = pygame.image.load('nba_court_image.jpg')
-        self.scaled_image = pygame.transform.scale(image, (500, 420))
+        self.scaled_image = pygame.transform.scale(image, (500, 425))
 
         # Default mode
         self.mode = 'all'
@@ -78,7 +78,7 @@ class GUI:
             self.all.draw(self.screen)
 
             # Draw court image
-            self.screen.blit(self.scaled_image, (390, 275))
+            self.screen.blit(self.scaled_image, (390, 270))
 
             if not self.court_created:
                 self.court = self.create_court()
