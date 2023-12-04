@@ -1,9 +1,11 @@
 from nba_api.stats.endpoints import leaguedashplayerstats
 import heapq
 import time
+import random
+import string
 
 
-# Used to create the list for merge sort
+# Used to create the player list for merge sort
 def create_fg_list(n):
     player_stats = leaguedashplayerstats.LeagueDashPlayerStats(season='2022-23')
     stats_df = player_stats.get_data_frames()[0]
@@ -19,27 +21,20 @@ def create_fg_list(n):
     return players_fg
 
 
-# Gets player stats then populates heap
-def min_heap(n):
-    player_stats = leaguedashplayerstats.LeagueDashPlayerStats(season='2022-23')
-    stats_df = player_stats.get_data_frames()[0]
-
-    if n == 0:
-        players_fg_pct = stats_df[['PLAYER_NAME', 'FG_PCT']]
-    else:
-        players_fg_pct = stats_df[['PLAYER_NAME', 'FG3_PCT']]
-
-    min_heap = []
-
-    for player in players_fg_pct.itertuples(index=False, name=None):
-        heapq.heappush(min_heap, (player[1], player[0]))
-
-    return min_heap
+# 100,000 testing requirement
+def large_test():
+    test_list = list()
+    for i in range(100000):
+        random_str = ''.join(random.choice(string.ascii_letters) for _ in range(10))
+        random_num = random.random()
+        test_list.append([random_str, random_num])
+    return test_list
 
 
 # Times merge sort
 def descending(n):
     start_time = time.time()
+    # descending_list = merge_sort(large_test())
     descending_list = merge_sort(create_fg_list(n))
     end_time = time.time()
     elapsed_time = end_time - start_time
@@ -49,10 +44,20 @@ def descending(n):
 # Times min heap
 def ascending(n):
     start_time = time.time()
-    ascending_list = min_heap(n)
+    # ascending_list = min_heap(large_test())
+    ascending_list = min_heap(create_fg_list(n))
     end_time = time.time()
     elapsed_time = end_time - start_time
     return [ascending_list, elapsed_time]
+
+
+# One of our teammates dropped the class, so we are using STL
+def min_heap(arr):
+    min_heap = []
+    for player in arr:
+        heapq.heappush(min_heap, (player[1], player[0]))
+
+    return min_heap
 
 
 def merge_sort(arr):
