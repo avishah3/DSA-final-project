@@ -1,5 +1,6 @@
 # NBA Shot Chart Visualization - '92 Bulls
 
+Video: _____
 <img width="982" alt="Screenshot 2023-12-04 at 4 34 30 PM" src="https://github.com/avishah3/DSA-final-project/assets/115107522/d0b20772-2185-43dd-9f52-3c9d70d799e3">
 
 ## Team Members
