@@ -1,4 +1,4 @@
-# NBA Shot Chart Visualization Project - '92 Bulls
+# NBA Shot Chart Visualization - '92 Bulls
 
 ##Team Members
 - Avi Shah
