@@ -146,7 +146,7 @@ class GUI:
             self.buttons.append(text)
             text2 = Text(1000, 250, 200, 50, 'Worst 3FG%')
             self.buttons.append(text2)
-            string = 'min heap: ' + str(round(heap_time, 3)) + ' s'
+            string = 'merge sort: ' + str(round(heap_time, 3)) + ' s'
             text3 = Text(100, 600, 200, 50, string)
             self.buttons.append(text3)
             string2 = 'min heap: ' + str(round(heap_time, 3)) + ' s'
