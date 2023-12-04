@@ -75,6 +75,7 @@ class GUI:
             # Check for user input
             if self.input_box.is_chosen():
                 self.name = self.input_box.return_name()
+                self.mode = 'all'
                 self.percentage_map = ShotChart(self.name, '2022-23', self.mode).percentage_map
 
                 self.input_box.after_chosen()
