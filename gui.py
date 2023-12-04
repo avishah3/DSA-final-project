@@ -15,10 +15,10 @@ class GUI:
 
         # UI elements
         self.input_box = TextBox(540, 50, 200, 40)
-        self.all = Button(100, 150, 200, 50, "All")
-        self.threes = Button(400, 150, 200, 50, "Threes")
-        self.midrange = Button(700, 150, 200, 50, "Mid-Range")
-        self.paint = Button(1000, 150, 200, 50, "Paint")
+        self.all = Button(100, 140, 200, 50, "All")
+        self.threes = Button(400, 140, 200, 50, "Threes")
+        self.midrange = Button(700, 140, 200, 50, "Mid-Range")
+        self.paint = Button(1000, 140, 200, 50, "Paint")
 
         image = pygame.image.load('nba_court_image.jpg')
         self.scaled_image = pygame.transform.scale(image, (500, 425))
@@ -106,7 +106,7 @@ class GUI:
 
 
 class TextBox:
-    def __init__(self, x, y, w, h, text=''):
+    def __init__(self, x, y, w, h, text='Lebron James'):
         self.rect = pygame.Rect(x, y, w, h)
         self.color = pygame.Color('dodgerblue2')
         self.chosen = False
@@ -134,7 +134,7 @@ class TextBox:
                 else:
                     self.text += event.unicode
                 # Re-render the text.
-                self.txt_surface = pygame.font.Font(None, 32).render(self.text, True, self.color)
+                self.txt_surface = pygame.font.Font(None, 40).render(self.text, True, self.color)
 
     def update(self):
         # Resize the box if the text is too long.
