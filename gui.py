@@ -1,6 +1,8 @@
 import pygame
-import shotchart
 import numpy as np
+from shotchart import ShotChart
+from buttons import Button, TextBox
+import sorting
 
 
 class GUI:
@@ -20,17 +22,18 @@ class GUI:
         self.midrange = Button(700, 140, 200, 50, "Mid-Range")
         self.paint = Button(1000, 140, 200, 50, "Paint")
 
+        self.merge_buttons = []
+        self.heap_buttons = []
+
+        # Court
         image = pygame.image.load('nba_court_image.jpg')
         self.scaled_image = pygame.transform.scale(image, (500, 425))
-
-        # Default mode
-        self.mode = 'all'
-        self.name = 'Lebron James'
-
-        self.percentage_map = shotchart.ShotChart(self.name, '2022-23', 'all').percentage_map
-
         self.court_created = False
         self.court = pygame.Surface((420, 500))
+
+        # Defaults
+        self.name = 'Lebron James'
+        self.percentage_map = ShotChart(self.name, '2022-23', 'all').percentage_map
 
         self.run()
         pygame.quit()
@@ -39,29 +42,33 @@ class GUI:
         running = True
         while running:
             for event in pygame.event.get():
+                # User exits or types in text box
                 if event.type == pygame.QUIT:
                     running = False
                 self.input_box.handle_event(event)
 
+                # User clicks button
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     pos = pygame.mouse.get_pos()
                     if self.all.is_over(pos):
-                        self.percentage_map = shotchart.ShotChart(self.name, '2022-23', 'all').percentage_map
+                        self.percentage_map = ShotChart(self.name, '2022-23', 'all').percentage_map
                         self.court_created = False
+                        self.add_sorting(0)
                     elif self.threes.is_over(pos):
-                        self.percentage_map = shotchart.ShotChart(self.name, '2022-23', 'threes').percentage_map
+                        self.percentage_map = ShotChart(self.name, '2022-23', 'threes').percentage_map
                         self.court_created = False
+                        self.add_sorting(1)
                     elif self.midrange.is_over(pos):
-                        self.percentage_map = shotchart.ShotChart(self.name, '2022-23', 'midrange').percentage_map
+                        self.percentage_map = ShotChart(self.name, '2022-23', 'midrange').percentage_map
                         self.court_created = False
                     elif self.paint.is_over(pos):
-                        self.percentage_map = shotchart.ShotChart(self.name, '2022-23', 'paint').percentage_map
+                        self.percentage_map = ShotChart(self.name, '2022-23', 'paint').percentage_map
                         self.court_created = False
 
             # Check for user input
             if self.input_box.is_chosen():
                 self.name = self.input_box.return_name()
-                self.percentage_map = shotchart.ShotChart(self.name, '2022-23', 'all').percentage_map
+                self.percentage_map = ShotChart(self.name, '2022-23', 'all').percentage_map
 
                 self.input_box.after_chosen()
                 self.court_created = False
@@ -77,6 +84,12 @@ class GUI:
             self.paint.draw(self.screen)
             self.all.draw(self.screen)
 
+            # Draw sorting buttons
+            for button in self.merge_buttons:
+                button.draw(self.screen)
+            for button in self.heap_buttons:
+                button.draw(self.screen)
+
             # Draw court image
             self.screen.blit(self.scaled_image, (390, 270))
 
@@ -88,10 +101,11 @@ class GUI:
             pygame.display.flip()
 
     def create_court(self):
+        # Dimensions of NBA half-court is 42x50 feet
         self.court = pygame.Surface((420, 500))
         self.court.set_alpha(150)
 
-        # Overlay heat map
+        # Overlay heat map (red to yellow)
         for i in range(self.percentage_map.shape[0]):
             for j in range(self.percentage_map.shape[1]):
                 percentage = self.percentage_map[i, j]
@@ -102,81 +116,21 @@ class GUI:
 
                 pygame.draw.rect(self.court, color, (j * 10, i * 10, 10, 10))
 
+        # Rotate so it looks like half court
         return pygame.transform.rotate(self.court, 90)
 
+    def add_sorting(self, n):
+        merge_list, merge_time = sorting.descending(n)
+        heap_list, heap_time = sorting.ascending(n)
+        for num in range(5):
+            name = merge_list[num]
+            button = Button(100, 100 + 100*num, 200, 50, name)
+            self.merge_buttons.append(button)
 
-class TextBox:
-    def __init__(self, x, y, w, h, text='Lebron James'):
-        self.rect = pygame.Rect(x, y, w, h)
-        self.color = pygame.Color('dodgerblue2')
-        self.chosen = False
-        self.text = text
-        self.txt_surface = pygame.font.Font(None, 40).render(text, True, self.color)
-        self.active = False
+        for num2 in range(5):
+            name2 = heap_list[num]
+            button2 = Button(800, 100 + 100*num, 200, 50, name2)
+            self.heap_buttons.append(button2)
 
-    def handle_event(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            # If the user clicked on the input_box rect.
-            if self.rect.collidepoint(event.pos):
-                # Toggle the active variable.
-                self.active = not self.active
-            else:
-                self.active = False
-            # Change the current color of the input box.
-            self.color = pygame.Color('dodgerblue2') if self.active else pygame.Color('lightskyblue3')
-        if event.type == pygame.KEYDOWN:
-            if self.active:
-                if event.key == pygame.K_RETURN:
-                    self.chosen = True
-                    print(self.text)
-                elif event.key == pygame.K_BACKSPACE:
-                    self.text = self.text[:-1]
-                else:
-                    self.text += event.unicode
-                # Re-render the text.
-                self.txt_surface = pygame.font.Font(None, 40).render(self.text, True, self.color)
-
-    def update(self):
-        # Resize the box if the text is too long.
-        width = max(200, self.txt_surface.get_width()+10)
-        self.rect.w = width
-
-    def draw(self, screen):
-        # Blit the text.
-        screen.blit(self.txt_surface, (self.rect.x+5, self.rect.y+5))
-        # Blit the rect.
-        pygame.draw.rect(screen, self.color, self.rect, 2)
-
-    def return_name(self):
-        return self.text
-
-    def is_chosen(self):
-        return self.chosen
-
-    def after_chosen(self):
-        self.chosen = False
-
-
-class Button:
-    def __init__(self, x, y, width, height, text):
-        self.color = (0, 0, 255)  # Blue color
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.text = text
-
-    def draw(self, win):
-        # Draw the button rectangle
-        pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.height))
-
-        # Draw the button text
-        font = pygame.font.SysFont(None, 40)
-        text = font.render(self.text, True, (255, 255, 255))
-        win.blit(text, (self.x + (self.width - text.get_width()) // 2, self.y + (self.height - text.get_height()) // 2))
-
-    def is_over(self, pos):
-        # Check if mouse is over the button
-        if self.x < pos[0] < self.x + self.width and self.y < pos[1] < self.y + self.height:
-            return True
-        return False
+        print("merge: ", merge_time)
+        print("heap: ", heap_time)
