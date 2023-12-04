@@ -7,10 +7,11 @@ import pandas as pd
 
 
 class ShotChart:
-    def __init__(self, name, season):
+    def __init__(self, name, season, mode):
         self.nba_players = players.get_players()
         self.name = name
         self.season_id = season
+        self.mode = mode
 
         self.made_map = np.zeros((50, 42))
         self.total_map = np.zeros((50, 42))
@@ -61,12 +62,36 @@ class ShotChart:
         player_shotchart_df = shotchartlist[0]
         league_avg = shotchartlist[1]
 
-        x_missed = player_shotchart_df[player_shotchart_df['EVENT_TYPE'] == 'Missed Shot']['LOC_X'].tolist()
-        y_missed = player_shotchart_df[player_shotchart_df['EVENT_TYPE'] == 'Missed Shot']['LOC_Y'].tolist()
+        # Depending on mode, show specific heat map
+        if self.mode == 'paint':
+            x_missed = player_shotchart_df[player_shotchart_df['EVENT_TYPE'] == 'Missed Shot'][player_shotchart_df['SHOT_ZONE_BASIC'] == ('In The Paint (Non-RA)' or 'Restricted Area')]['LOC_X'].tolist()
+            y_missed = player_shotchart_df[player_shotchart_df['EVENT_TYPE'] == 'Missed Shot'][player_shotchart_df['SHOT_ZONE_BASIC'] == ('In The Paint (Non-RA)' or 'Restricted Area')]['LOC_Y'].tolist()
 
-        x_made = player_shotchart_df[player_shotchart_df['EVENT_TYPE'] == 'Made Shot']['LOC_X'].tolist()
-        y_made = player_shotchart_df[player_shotchart_df['EVENT_TYPE'] == 'Made Shot']['LOC_Y'].tolist()
+            x_made = player_shotchart_df[player_shotchart_df['EVENT_TYPE'] == 'Made Shot'][player_shotchart_df['SHOT_ZONE_BASIC'] == ('In The Paint (Non-RA)' or 'Restricted Area')]['LOC_X'].tolist()
+            y_made = player_shotchart_df[player_shotchart_df['EVENT_TYPE'] == 'Made Shot'][player_shotchart_df['SHOT_ZONE_BASIC'] == ('In The Paint (Non-RA)' or 'Restricted Area')]['LOC_Y'].tolist()
 
+        elif self.mode == 'midrange':
+            x_missed = player_shotchart_df[player_shotchart_df['EVENT_TYPE'] == 'Missed Shot'][player_shotchart_df['SHOT_ZONE_BASIC'] == 'Mid-Range']['LOC_X'].tolist()
+            y_missed = player_shotchart_df[player_shotchart_df['EVENT_TYPE'] == 'Missed Shot'][player_shotchart_df['SHOT_ZONE_BASIC'] == 'Mid-Range']['LOC_Y'].tolist()
+
+            x_made = player_shotchart_df[player_shotchart_df['EVENT_TYPE'] == 'Made Shot'][player_shotchart_df['SHOT_ZONE_BASIC'] == 'Mid-Range']['LOC_X'].tolist()
+            y_made = player_shotchart_df[player_shotchart_df['EVENT_TYPE'] == 'Made Shot'][player_shotchart_df['SHOT_ZONE_BASIC'] == 'Mid-Range']['LOC_Y'].tolist()
+
+        elif self.mode == 'threes':
+            x_missed = player_shotchart_df[player_shotchart_df['EVENT_TYPE'] == 'Missed Shot'][player_shotchart_df['SHOT_ZONE_BASIC'] == ('Above the Break 3' or 'Left Corner 3' or 'Right Corner 3')]['LOC_X'].tolist()
+            y_missed = player_shotchart_df[player_shotchart_df['EVENT_TYPE'] == 'Missed Shot'][player_shotchart_df['SHOT_ZONE_BASIC'] == ('Above the Break 3' or 'Left Corner 3' or 'Right Corner 3')]['LOC_Y'].tolist()
+
+            x_made = player_shotchart_df[player_shotchart_df['EVENT_TYPE'] == 'Made Shot'][player_shotchart_df['SHOT_ZONE_BASIC'] == ('Above the Break 3' or 'Left Corner 3' or 'Right Corner 3')]['LOC_X'].tolist()
+            y_made = player_shotchart_df[player_shotchart_df['EVENT_TYPE'] == 'Made Shot'][player_shotchart_df['SHOT_ZONE_BASIC'] == ('Above the Break 3' or 'Left Corner 3' or 'Right Corner 3')]['LOC_Y'].tolist()
+
+        else:
+            x_missed = player_shotchart_df[player_shotchart_df['EVENT_TYPE'] == 'Missed Shot']['LOC_X'].tolist()
+            y_missed = player_shotchart_df[player_shotchart_df['EVENT_TYPE'] == 'Missed Shot']['LOC_Y'].tolist()
+
+            x_made = player_shotchart_df[player_shotchart_df['EVENT_TYPE'] == 'Made Shot']['LOC_X'].tolist()
+            y_made = player_shotchart_df[player_shotchart_df['EVENT_TYPE'] == 'Made Shot']['LOC_Y'].tolist()
+
+        # Calculate the made shots and total shots map (used to create the percentage heat map)
         for i in range(0, len(x_made)):
             x_exact = x_made[i]
             y_exact = y_made[i]
